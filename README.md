@@ -63,7 +63,7 @@ will only work if indent was added by this lib).
 
 ### sanitize(astOrNode)
 
-Removes any `Indent` tokens that doesn't have a `level` property (this is
+Removes any `Indent` tokens that don't have a `level` property (this is
 usually the original indentation of the program parsed by rocambole) or that
 are not at the beginning of the line. Also removing `WhiteSpace` tokens that
 are at the beginning of the line to avoid mistakes.
