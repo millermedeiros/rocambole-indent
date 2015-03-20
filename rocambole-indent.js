@@ -35,17 +35,30 @@ function indentInBetween(startToken, endToken, level) {
   }
 
   var token = startToken && startToken.next;
+  var endsWithBraces = isClosingBrace(endToken);
   while (token && token !== endToken) {
     if (tk.isBr(token.prev)) {
-      line(token, level);
+      // we ignore the last indent (if first token on the line is a ws or
+      // ident) just because in most cases we don't want to change the indent
+      // just before "}", ")" and "]" - this allow us to pass
+      // `node.body.startToken` and `node.body.endToken` as the range
+      if (token.next !== endToken || !endsWithBraces || !tk.isEmpty(token)) {
+        addLevel(token, level);
+      }
     }
     token = token.next;
   }
 }
 
 
-exports.line = line;
-function line(token, level) {
+function isClosingBrace(token) {
+  var val = token.value;
+  return val === ')' || val === '}' || val === ']';
+}
+
+
+exports.addLevel = addLevel;
+function addLevel(token, level) {
   if (!level) {
     // zero is a noop
     return;
@@ -55,7 +68,7 @@ function line(token, level) {
 
   if (!token) {
     // we never indent empty lines!
-    debug('[indent.before] can\'t find start of line');
+    debug('[indent.addLevel] can\'t find start of line');
     return;
   }
 
@@ -74,13 +87,16 @@ function line(token, level) {
         token.level += level;
       }
     }
+    if (token.next && token.next.type === 'BlockComment') {
+      updateBlockComment(token.next);
+    }
     return;
   }
 
   if (level < 1) {
     // we can't remove indent if previous token isn't an indent
     debug(
-      '[before] we can\'t decrement if line doesn\'t start with Indent. token: %s, level: %s',
+      '[addLevel] we can\'t decrement if line doesn\'t start with Indent. token: %s, level: %s',
       token && token.value,
       level
     );
@@ -109,6 +125,7 @@ function line(token, level) {
 
 function findStartOfLine(token) {
   if (tk.isBr(token) && tk.isBr(token.prev)) {
+    // empty lines are ignored
     return null;
   }
   var prev = token.prev;
@@ -130,8 +147,6 @@ function sanitize(astOrNode) {
     var next = token.next;
     if (isOriginalIndent(token)) {
       tk.remove(token);
-    } else if (token.type === 'BlockComment') {
-      updateBlockComment(token);
     }
     token = next;
   }
