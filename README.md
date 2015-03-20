@@ -1,4 +1,4 @@
-# rocambole-whitespace
+# rocambole-indent
 
 Helpers to manipulate [rocambole](https://github.com/millermedeiros/rocambole)
 `Indent` tokens.
@@ -60,10 +60,10 @@ will only work if indent was added by this lib).
 
 ### sanitize(astOrNode)
 
-Removes any `Indent` tokens that doesn't have a `level` property (this is
+Removes any `Indent` tokens that don't have a `level` property (this is
 usually the original indentation of the program parsed by rocambole) or that
-are not at the begining of the line. It also updates all the `BlockComment` to
-align the multiple lines.
+are not at the begining of the line. It also updates all `BlockComment`s to
+align multiple lines.
 
 ```js
 // sanitize a single node
