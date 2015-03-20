@@ -1,4 +1,4 @@
-# rocambole-whitespace
+# rocambole-indent
 
 Helpers to manipulate [rocambole](https://github.com/millermedeiros/rocambole)
 `Indent` tokens.
