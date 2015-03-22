@@ -162,6 +162,7 @@ function isOriginalIndent(token) {
 }
 
 
+exports.updateBlockComment = updateBlockComment;
 function updateBlockComment(comment) {
   var orig = new RegExp('([\\n\\r]+)' + escapeRegExp(comment.originalIndent || ''), 'gm');
   var update = comment.prev && comment.prev.type === 'Indent'? comment.prev.value : '';
@@ -171,3 +172,90 @@ function updateBlockComment(comment) {
   comment.originalIndent = update;
 }
 
+
+// comments are aligned based on the next line unless the line/block is
+// followed by an empty line, in that case it will use the previous line as
+// reference.
+exports.alignComments = alignComments;
+function alignComments(nodeOrAst) {
+  var first = nodeOrAst.startToken;
+  var token = nodeOrAst.endToken;
+  while (token && token !== first) {
+    if (tk.isComment(token) && (tk.isBr(token.prev) || tk.isIndent(token.prev) || !token.prev)) {
+      var base = findReferenceIndent(token);
+      if (!base) {
+        if (tk.isIndent(token.prev)) {
+          tk.remove(token.prev);
+        }
+      } else {
+        if (tk.isIndent(token.prev)) {
+          token.prev.value = base.value;
+          token.prev.level = base.level;
+        } else {
+          tk.before(token, {
+            type: 'Indent',
+            value: base.value,
+            level: base.level
+          });
+        }
+      }
+
+      if (token.type === 'BlockComment') {
+        updateBlockComment(token);
+      }
+    }
+    token = token.prev;
+  }
+}
+
+function findReferenceIndent(start) {
+  var prevLine = findPrevReference(start);
+  var nextLine = findNextReference(start);
+  // we favor nextLine unless it's empty
+  if (tk.isBr(nextLine) || tk.isWs(nextLine) || !nextLine) {
+    return tk.isIndent(prevLine) && prevLine.level ? prevLine : null;
+  }
+  return tk.isIndent(nextLine) && nextLine.level ? nextLine : null;
+}
+
+function findPrevReference(start) {
+  var token = start.prev;
+  var changedLine = false;
+  while (token) {
+    // multiple consecutive comments should use the same reference (consider as
+    // a single block)
+    if (changedLine && tk.isBr(token) && nextInLineNotComment(token)) {
+      return token.next;
+    }
+    if (tk.isBr(token)) {
+      changedLine = true;
+    }
+    token = token.prev;
+  }
+}
+
+function findNextReference(start) {
+  var token = start.next;
+  while (token) {
+    // multiple consecutive comments should use the same reference (consider as
+    // a single block)
+    if (tk.isBr(token) && nextInLineNotComment(token)) {
+      return token.next;
+    }
+    token = token.next;
+  }
+}
+
+function nextInLineNotComment(token) {
+  token = token.next;
+  while (token) {
+    if (tk.isBr(token)) {
+      return true;
+    }
+    if (!tk.isEmpty(token)) {
+      return !tk.isComment(token);
+    }
+    token = token.next;
+  }
+  return true;
+}

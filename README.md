@@ -84,6 +84,37 @@ This is called internally by the `addLevel` and `indentInBetween` methods (if
 first token of line is a `BlockComment`), so as long as you only use those
 methods to edit the indent level you shouldn't need to call this.
 
+### alignComments(astOrNode)
+
+Align all the comments based on the next/previous lines inside a given `ast` or
+`node`.
+
+It will align the comments with the next line unless the comment block is
+followed by an empty line, in that case it will use the previous non-empty line
+as a reference.
+
+Example output:
+
+```js
+// aligned with next line
+switch (foo) {
+  // aligned with next line
+  case bar:
+    // aligned with next line
+    baz();
+    // this should be aligned with previous line since comment block is
+    // followed by an empty line
+
+  // aligned with next line
+  case biz:
+    // aligned with next line
+    what();
+// aligned with next line
+}
+// aligned with previous line since it's at the end of program
+```
+
+
 ## Debug
 
 This module uses [debug](https://www.npmjs.com/package/debug) internally. To
