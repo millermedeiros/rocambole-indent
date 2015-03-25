@@ -193,14 +193,18 @@ function alignComments(nodeOrAst) {
           // the whitespaces into Indent tokens
           token.prev.type = 'Indent';
           token.prev.value = base.value;
-          token.prev.level = base.level;
+          token.prev.level = inferLevel(base, _opts.value);
         } else {
           tk.before(token, {
             type: 'Indent',
             value: base.value,
-            level: base.level
+            level: inferLevel(base, _opts.value)
           });
         }
+      }
+
+      if (isInsideEmptyBlock(token)) {
+        addLevel(token, 1);
       }
 
       if (token.type === 'BlockComment') {
@@ -273,6 +277,16 @@ function nextInLineNotComment(token) {
   return true;
 }
 
+function isInsideEmptyBlock(token) {
+  var open = tk.findPrev(token, tk.isCode);
+  var close = tk.findNext(token, tk.isCode);
+  if (!open || !close) return false;
+  var a = open.value;
+  var z = close.value;
+  return (a === '(' || a === '[' || a === '{') &&
+    (z === ')' || z === ']' || z === '}');
+}
+
 exports.whiteSpaceToIndent = whiteSpaceToIndent;
 function whiteSpaceToIndent(token, indentValue) {
   if (tk.isWs(token) && (tk.isBr(token.prev) || !token.prev)) {
@@ -280,7 +294,11 @@ function whiteSpaceToIndent(token, indentValue) {
     // we can't add level if we don't know original indentValue
     indentValue = indentValue || _opts.value;
     if (indentValue) {
-      token.level = token.value.split(indentValue).length - 1;
+      token.level = inferLevel(token, indentValue);
     }
   }
+}
+
+function inferLevel(token, indentValue) {
+  return Math.max(token.value.split(indentValue).length - 1, 0);
 }

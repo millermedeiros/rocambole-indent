@@ -1,5 +1,10 @@
 # rocambole-indent changelog
 
+## v2.0.0 (2015-03-25)
+
+ - change `alignComments()` rule to add one indent level if comment is inside
+   empty block/array/parenthesis
+
 ## v1.1.1 (2015-03-25)
 
  - fix `WhiteSpace` conversion into `Indent` inside `alignComments()`

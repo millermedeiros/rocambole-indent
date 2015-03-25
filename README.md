@@ -111,6 +111,11 @@ switch (foo) {
     what();
 // aligned with next line
 }
+
+function noop() {
+  // indented since it's inside an empty block
+}
+
 // aligned with previous line since it's at the end of program
 ```
 

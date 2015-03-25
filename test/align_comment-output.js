@@ -1,16 +1,37 @@
-// aligned with next line
+// next
 switch (foo) {
-  // aligned with next line
+  // next
   case bar:
-    // aligned with next line
+    // next
     baz();
     // this should be aligned with previous line since comment block is
     // followed by an empty line
 
-  // aligned with next line
+  // next
   case biz:
-    // aligned with next line
+    // next
     what();
-// aligned with next line
+// next
 }
-// aligned with previous line since it's at the end of program
+// previous
+
+// next
+function empty(
+  // > indent
+  // > indent
+)
+// next
+// next
+{
+  // > indent
+  // > indent
+}
+// prev
+
+function empty2() {
+  if (foo) {
+    // >> indent
+  }
+}
+
+// prev
