@@ -134,8 +134,8 @@ console.log(token.type);  // > "Indent"
 console.log(token.level); // > 3
 ```
 
-This is useful in case you want to `alignComments` or make sure `sanitize`
-won't remove the original indent.
+This is useful in case you want to make sure `sanitize` won't remove the
+original indents.
 
 ## Debug
 

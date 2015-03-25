@@ -1,23 +1,37 @@
 //jshint node:true, eqnull:true
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
+var assert = require('assert');
 var diff = require('diff');
-var rocambole = require('rocambole');
+var fs = require('fs');
 var indent = require('../rocambole-indent');
+var path = require('path');
+var rocambole = require('rocambole');
 
-formatAndCompare('align_comment-input.js', 'align_comment-output.js', function(ast) {
-  // need to convert WhiteSpace tokens to Indent first so we can use the `level`
-  var token = ast.startToken;
-  while (token) {
-    if (token.type === 'WhiteSpace') {
-      indent.whiteSpaceToIndent(token, '  ');
-    }
-    token = token.next;
-  }
-  indent.alignComments(ast);
-});
+// ==================
+// whiteSpaceToIndent
+// ==================
+
+var ws1 = { type: 'WhiteSpace', value: '  ' };
+indent.whiteSpaceToIndent(ws1);
+assert.equal(ws1.type, 'Indent');
+assert.equal(ws1.level, 1);
+
+var ws2 = { type: 'WhiteSpace', value: '  ', prev: { type: 'LineBreak' } };
+indent.whiteSpaceToIndent(ws2, '  ');
+assert.equal(ws2.type, 'Indent');
+assert.equal(ws2.level, 1);
+
+var ws3 = { type: 'WhiteSpace', value: '  ', prev: { type: 'Punctuator' } };
+indent.whiteSpaceToIndent(ws3, '  ');
+assert.equal(ws3.type, 'WhiteSpace');
+assert.equal(ws3.level, undefined);
+
+// =============
+// alignComments
+// =============
+
+formatAndCompare('align_comment-input.js', 'align_comment-output.js', indent.alignComments);
 
 function formatAndCompare(inputFile, expectedFile, method) {
   var input = getFile(inputFile);

@@ -178,17 +178,20 @@ function updateBlockComment(comment) {
 // reference.
 exports.alignComments = alignComments;
 function alignComments(nodeOrAst) {
-  var first = nodeOrAst.startToken;
+  var first = nodeOrAst.startToken.prev;
   var token = nodeOrAst.endToken;
   while (token && token !== first) {
-    if (tk.isComment(token) && (tk.isBr(token.prev) || tk.isIndent(token.prev) || !token.prev)) {
+    if (tk.isComment(token) && isFirstNonEmptyTokenOfLine(token)) {
       var base = findReferenceIndent(token);
       if (!base) {
-        if (tk.isIndent(token.prev)) {
+        if (tk.isIndent(token.prev) || tk.isWs(token.prev)) {
           tk.remove(token.prev);
         }
       } else {
-        if (tk.isIndent(token.prev)) {
+        if (tk.isIndent(token.prev) || tk.isWs(token.prev)) {
+          // we reuse whitespace just because user might not have converted all
+          // the whitespaces into Indent tokens
+          token.type = 'Indent';
           token.prev.value = base.value;
           token.prev.level = base.level;
         } else {
@@ -208,14 +211,20 @@ function alignComments(nodeOrAst) {
   }
 }
 
+function isFirstNonEmptyTokenOfLine(token) {
+  if (!token.prev || tk.isBr(token.prev)) return true;
+  var prev = tk.findPrevNonEmpty(token);
+  return !prev ? true : tk.findInBetween(prev, token, tk.isBr);
+}
+
 function findReferenceIndent(start) {
   var prevLine = findPrevReference(start);
   var nextLine = findNextReference(start);
   // we favor nextLine unless it's empty
-  if (tk.isBr(nextLine) || tk.isWs(nextLine) || !nextLine) {
-    return tk.isIndent(prevLine) && prevLine.level ? prevLine : null;
+  if (tk.isBr(nextLine) || !nextLine) {
+    return tk.isIndent(prevLine) || tk.isWs(prevLine) ? prevLine : null;
   }
-  return tk.isIndent(nextLine) && nextLine.level ? nextLine : null;
+  return tk.isIndent(nextLine) || tk.isWs(nextLine) ? nextLine : null;
 }
 
 function findPrevReference(start) {
