@@ -1,5 +1,9 @@
 # rocambole-indent changelog
 
+## v2.0.1 (2015-03-25)
+
+ - safeguard against empty nodes/ast on `alignComments()`
+
 ## v2.0.0 (2015-03-25)
 
  - change `alignComments()` rule to add one indent level if comment is inside
