@@ -1,5 +1,9 @@
 # rocambole-indent changelog
 
+## v2.0.2 (2015-03-25)
+
+ - fix edge cases related to comments just after `{` followed by an empty line.
+
 ## v2.0.1 (2015-03-25)
 
  - safeguard against empty nodes/ast on `alignComments()`

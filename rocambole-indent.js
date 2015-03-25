@@ -9,7 +9,8 @@ var repeat = require('mout/string/repeat');
 // ---
 
 var _opts = {
-  value: '  '
+  value: '  ',
+  CommentInsideEmptyBlock: 1
 };
 
 // ---
@@ -183,36 +184,46 @@ function alignComments(nodeOrAst) {
   while (token && token !== first) {
     if (tk.isComment(token) && isFirstNonEmptyTokenOfLine(token)) {
       var base = findReferenceIndent(token);
-      if (!base) {
-        if (isIndentOrWs(token.prev)) {
-          tk.remove(token.prev);
-        }
-      } else {
-        if (isIndentOrWs(token.prev)) {
-          // we reuse whitespace just because user might not have converted all
-          // the whitespaces into Indent tokens
-          token.prev.type = 'Indent';
-          token.prev.value = base.value;
-          token.prev.level = inferLevel(base, _opts.value);
-        } else {
-          tk.before(token, {
-            type: 'Indent',
-            value: base.value,
-            level: inferLevel(base, _opts.value)
-          });
-        }
-      }
+      matchBaseIndent(token, base);
 
-      if (isInsideEmptyBlock(token)) {
-        addLevel(token, 1);
+      // if inside an empty block we add indent otherwise it looks weird
+      var change = _opts.CommentInsideEmptyBlock != null ?
+        _opts.CommentInsideEmptyBlock : 1;
+      if (change && isInsideEmptyBlock(token)) {
+        addLevel(token, change);
       }
 
       if (token.type === 'BlockComment') {
         updateBlockComment(token);
       }
     }
+
     token = token.prev;
   }
+}
+
+function matchBaseIndent(token, base) {
+  if (!base) {
+    if (isIndentOrWs(token.prev)) {
+      tk.remove(token.prev);
+    }
+    return;
+  }
+
+  if (isIndentOrWs(token.prev)) {
+    // we reuse whitespace just because user might not have converted all
+    // the whitespaces into Indent tokens
+    token.prev.type = 'Indent';
+    token.prev.value = base.value;
+    token.prev.level = inferLevel(base, _opts.value);
+    return;
+  }
+
+  tk.before(token, {
+    type: 'Indent',
+    value: base.value,
+    level: inferLevel(base, _opts.value)
+  });
 }
 
 function isFirstNonEmptyTokenOfLine(token) {
@@ -224,6 +235,13 @@ function isFirstNonEmptyTokenOfLine(token) {
 function findReferenceIndent(start) {
   var prevLine = findPrevReference(start);
   var nextLine = findNextReference(start);
+  if (isAtBeginingOfBlock(start)) {
+    // this handles an edge case of comment just after "{" followed by an empty
+    // line (would use the previous line as reference by mistake)
+    while (nextLine && tk.isBr(nextLine)) {
+      nextLine = findNextReference(nextLine.prev);
+    }
+  }
   // we favor nextLine unless it's empty
   if (tk.isBr(nextLine) || !nextLine) {
     return isIndentOrWs(prevLine) ? prevLine : null;
@@ -277,14 +295,22 @@ function nextInLineNotComment(token) {
   return true;
 }
 
-function isInsideEmptyBlock(token) {
+function isAtBeginingOfBlock(token) {
   var open = tk.findPrev(token, tk.isCode);
-  var close = tk.findNext(token, tk.isCode);
-  if (!open || !close) return false;
+  if (!open) return false;
   var a = open.value;
+  return a === '(' || a === '[' || a === '{';
+}
+
+function isAtEndOfBlock(token) {
+  var close = tk.findNext(token, tk.isCode);
+  if (!close) return false;
   var z = close.value;
-  return (a === '(' || a === '[' || a === '{') &&
-    (z === ')' || z === ']' || z === '}');
+  return (z === ')' || z === ']' || z === '}');
+}
+
+function isInsideEmptyBlock(token) {
+  return isAtEndOfBlock(token) && isAtBeginingOfBlock(token);
 }
 
 exports.whiteSpaceToIndent = whiteSpaceToIndent;

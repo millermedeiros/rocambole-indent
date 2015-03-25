@@ -19,7 +19,10 @@ var indent = require('rocambole-indent');
 ```js
 setOptions({
   // sets "value" used by `Indent` tokens (defaults to two spaces)
-  value: '  '
+  value: '  ',
+  // amount of indents added on `alignComments` if comment is inside an empty
+  // block (surrounded by `{}`, `[]` or `()`) - defaults to `1`
+  CommentInsideEmptyBlock: 1
 });
 ```
 
@@ -98,7 +101,8 @@ Example output:
 ```js
 // aligned with next line
 switch (foo) {
-  // aligned with next line
+  // aligned with next non-empty line
+
   case bar:
     // aligned with next line
     baz();
