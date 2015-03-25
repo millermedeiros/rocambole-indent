@@ -184,14 +184,14 @@ function alignComments(nodeOrAst) {
     if (tk.isComment(token) && isFirstNonEmptyTokenOfLine(token)) {
       var base = findReferenceIndent(token);
       if (!base) {
-        if (tk.isIndent(token.prev) || tk.isWs(token.prev)) {
+        if (isIndentOrWs(token.prev)) {
           tk.remove(token.prev);
         }
       } else {
-        if (tk.isIndent(token.prev) || tk.isWs(token.prev)) {
+        if (isIndentOrWs(token.prev)) {
           // we reuse whitespace just because user might not have converted all
           // the whitespaces into Indent tokens
-          token.type = 'Indent';
+          token.prev.type = 'Indent';
           token.prev.value = base.value;
           token.prev.level = base.level;
         } else {
@@ -222,9 +222,9 @@ function findReferenceIndent(start) {
   var nextLine = findNextReference(start);
   // we favor nextLine unless it's empty
   if (tk.isBr(nextLine) || !nextLine) {
-    return tk.isIndent(prevLine) || tk.isWs(prevLine) ? prevLine : null;
+    return isIndentOrWs(prevLine) ? prevLine : null;
   }
-  return tk.isIndent(nextLine) || tk.isWs(nextLine) ? nextLine : null;
+  return isIndentOrWs(nextLine) ? nextLine : null;
 }
 
 function findPrevReference(start) {
@@ -253,6 +253,10 @@ function findNextReference(start) {
     }
     token = token.next;
   }
+}
+
+function isIndentOrWs(token) {
+  return tk.isIndent(token) || tk.isWs(token);
 }
 
 function nextInLineNotComment(token) {

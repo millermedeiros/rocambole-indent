@@ -1,5 +1,9 @@
 # rocambole-indent changelog
 
+## v1.1.1 (2015-03-25)
+
+ - fix `WhiteSpace` conversion into `Indent` inside `alignComments()`
+
 ## v1.1.0 (2015-03-25)
 
  - update `alignComments()` to consider `WhiteSpace` tokens at the begining of
