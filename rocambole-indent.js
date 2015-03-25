@@ -259,3 +259,15 @@ function nextInLineNotComment(token) {
   }
   return true;
 }
+
+exports.whiteSpaceToIndent = whiteSpaceToIndent;
+function whiteSpaceToIndent(token, indentValue) {
+  if (tk.isWs(token) && (tk.isBr(token.prev) || !token.prev)) {
+    token.type = 'Indent';
+    // we can't add level if we don't know original indentValue
+    indentValue = indentValue || _opts.value;
+    if (indentValue) {
+      token.level = token.value.split(indentValue).length - 1;
+    }
+  }
+}

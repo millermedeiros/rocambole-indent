@@ -114,6 +114,28 @@ switch (foo) {
 // aligned with previous line since it's at the end of program
 ```
 
+### whiteSpaceToIndent(token, [indentValue])
+
+Convert `WhiteSpace` token into `Indent` if it's the first token of the line.
+
+You can pass a custom `indentValue` or it will use the value set by
+`setOptions()` to calculate the indent `level` (basically count how many times
+this string repeats inside the `token.value`).
+
+```js
+var token = {
+  type: 'WhiteSpace',
+  value: '\t\t\t',
+  prev: { type: 'LineBreak', value: '\n' }
+};
+whiteSpaceToIndent(token, '\t');
+// edits properties in place
+console.log(token.type);  // > "Indent"
+console.log(token.level); // > 3
+```
+
+This is useful in case you want to `alignComments` or make sure `sanitize`
+won't remove the original indent.
 
 ## Debug
 
