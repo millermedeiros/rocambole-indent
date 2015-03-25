@@ -31,6 +31,9 @@ assert.equal(ws3.level, undefined);
 // alignComments
 // =============
 
+// yes, this will throw if it doesn't support empty nodes/ast
+indent.alignComments({});
+
 formatAndCompare('align_comment-input.js', 'align_comment-output.js', indent.alignComments);
 
 function formatAndCompare(inputFile, expectedFile, method) {

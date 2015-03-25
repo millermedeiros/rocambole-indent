@@ -178,7 +178,7 @@ function updateBlockComment(comment) {
 // reference.
 exports.alignComments = alignComments;
 function alignComments(nodeOrAst) {
-  var first = nodeOrAst.startToken.prev;
+  var first = nodeOrAst.startToken && nodeOrAst.startToken.prev;
   var token = nodeOrAst.endToken;
   while (token && token !== first) {
     if (tk.isComment(token) && isFirstNonEmptyTokenOfLine(token)) {
