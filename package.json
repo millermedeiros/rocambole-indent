@@ -1,6 +1,6 @@
 {
   "name": "rocambole-indent",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "helpers for rocambole AST indentation",
   "main": "rocambole-indent.js",
   "scripts": {
