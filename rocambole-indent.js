@@ -130,7 +130,7 @@ function findStartOfLine(token) {
     return null;
   }
   var prev = token.prev;
-  while(true) {
+  while (true) {
     if (!prev || tk.isBr(prev)) {
       return token;
     }
@@ -166,7 +166,7 @@ function isOriginalIndent(token) {
 exports.updateBlockComment = updateBlockComment;
 function updateBlockComment(comment) {
   var orig = new RegExp('([\\n\\r]+)' + escapeRegExp(comment.originalIndent || ''), 'gm');
-  var update = comment.prev && comment.prev.type === 'Indent'? comment.prev.value : '';
+  var update = comment.prev && comment.prev.type === 'Indent' ? comment.prev.value : '';
   comment.raw = comment.raw.replace(orig, '$1' + update);
   // override the originalIndent so multiple consecutive calls still work as
   // expected
