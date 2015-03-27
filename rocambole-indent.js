@@ -255,7 +255,7 @@ function findPrevReference(start) {
   while (token) {
     // multiple consecutive comments should use the same reference (consider as
     // a single block)
-    if (changedLine && tk.isBr(token) && nextInLineNotComment(token)) {
+    if (changedLine && tk.isBr(token) && !tk.isBr(token.next) && nextInLineNotComment(token)) {
       return token.next;
     }
     if (tk.isBr(token)) {

@@ -73,6 +73,8 @@ class Foo extends Bar {
     this.bar = bar;
   }
 
+// prev
+
   method() {
       // > indent
   }
@@ -81,5 +83,21 @@ class Foo extends Bar {
   // next
 }
 // prev
+
+function foo() {
+
+    // > indent
+        // > indent
+
+}
+
+function bar() {
+  foo();
+
+// > indent
+// > indent
+
+  baz();
+}
 
     // prev
