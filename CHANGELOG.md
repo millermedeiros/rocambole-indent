@@ -1,5 +1,9 @@
 # rocambole-indent changelog
 
+## v2.0.3 (2015-03-26)
+
+ - fix comment alignment if surrounded by empty lines (#5)
+
 ## v2.0.2 (2015-03-25)
 
  - fix edge cases related to comments just after `{` followed by an empty line.
